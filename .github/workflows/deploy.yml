@@ -3,7 +3,7 @@ name: Deploy GitHub Pages
 on:
   push:
     branches:
-      - main  # 触发工作流的分支，根据实际情况修改
+      - main
 
 jobs:
   deploy:
@@ -16,18 +16,30 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '14'  # 根据项目需要选择 Node.js 版本
+          node-version: '14'
 
       - name: Install dependencies
-        run: npm install
-        working-directory: templates  # 如果项目需要安装依赖且 package.json 在 template 文件夹中
+        run: |
+          cd templates
+          if [ -f package.json ]; then
+            npm install
+          else
+            echo "package.json not found in templates directory"
+            exit 1
+          fi
 
       - name: Build project
-        run: npm run build
-        working-directory: templates  # 如果项目需要构建且构建命令在 template 文件夹中
+        run: |
+          cd templates
+          if [ -f package.json ]; then
+            npm run build
+          else
+            echo "Build script not found"
+            exit 1
+          fi
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./templates  # 要发布的目录，根据实际情况修改
+          publish_dir: ./templates
