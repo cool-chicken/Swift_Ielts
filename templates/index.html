@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>雅思作文题目爬取工具</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>雅思写作 Task 2 题目爬取</h1>
+        
+        <!-- 预定义链接按钮 -->
+        <div class="button-group">
+            <button onclick="crawl('ieltsliz_essays')">爬取 IELTS Liz 范文题目</button>
+            <button onclick="crawl('ieltsliz_tips')">爬取 IELTS Liz 技巧页题目</button>
+        </div>
+        
+        <!-- 自定义链接输入 -->
+        <div class="custom-url">
+            <input type="text" id="customUrl" placeholder="输入合法 URL (仅限 ieltsliz.com)">
+            <button onclick="crawlCustom()">爬取自定义链接</button>
+        </div>
+        
+        <!-- 结果显示区域 -->
+        <div id="result" class="result-box">
+            <div class="loading" id="loading" style="display: none;">加载中...</div>
+            <div id="questions"></div>
+            <div id="error" class="error"></div>
+        </div>
+    </div>
+
+    <script>
+        function crawl(urlKey) {
+            sendRequest({ url_key: urlKey });
+        }
+
+        function crawlCustom() {
+            const customUrl = document.getElementById('customUrl').value;
+            if (!customUrl) {
+                showError('请输入URL');
+                return;
+            }
+            sendRequest({ custom_url: customUrl });
+        }
+
+        function sendRequest(data) {
+            const loading = document.getElementById('loading');
+            const errorDiv = document.getElementById('error');
+            loading.style.display = 'block';
+            errorDiv.textContent = '';
+
+            fetch('/api/crawl', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.error) {
+                    showError(result.error);
+                } else {
+                    displayQuestions(result.questions);
+                }
+            })
+            .catch(err => showError('网络请求失败'))
+            .finally(() => loading.style.display = 'none');
+        }
+
+        function displayQuestions(questions) {
+            const container = document.getElementById('questions');
+            container.innerHTML = questions.map((q, idx) => `
+                <div class="question-item" onclick="goToAnswer('${encodeURIComponent(q)}')">
+                    <span class="question-number">${idx + 1}.</span>
+                    <span class="question-text">${q}</span>
+                </div>
+            `).join('');
+        }
+
+        function goToAnswer(question) {
+            sessionStorage.setItem('currentQuestion', decodeURIComponent(question));
+            window.location.href = '/answer';
+        }
+
+        function showError(message) {
+            document.getElementById('error').textContent = message;
+        }
+    </script>
+</body>
+</html>

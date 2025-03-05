@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>作文批改</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <button onclick="goBack()" class="back-button">返回题目列表</button>
+        <h2>题目</h2>
+        <div id="questionContent" class="question-content"></div>
+        
+        <h2>我的作文</h2>
+        <textarea 
+            id="essayInput" 
+            rows="15"
+            placeholder="在此输入您的作文（仅支持英文）..."
+            inputmode="latin"
+            lang="en"
+        ></textarea>
+        
+        <button onclick="submitEssay()" class="submit-button" id="submitBtn">提交批改</button>
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            批改中，请稍候...
+        </div>
+        
+        <div id="resultArea" class="result-area"></div>
+    </div>
+
+    <script>
+        // 页面加载时显示题目
+        window.onload = () => {
+            const question = sessionStorage.getItem('currentQuestion');
+            document.getElementById('questionContent').textContent = question;
+        };
+
+        // 强制英文输入
+        document.getElementById('essayInput').addEventListener('input', function (e) {
+            this.value = this.value.replace(/[^a-zA-Z0-9\s\.,;!?']/g, '');
+        });
+
+        // 提交逻辑
+        function submitEssay() {
+            const btn = document.getElementById('submitBtn');
+            const loading = document.getElementById('loading');
+            const essay = document.getElementById('essayInput').value;
+            
+            if (!essay) {
+                alert('请先输入作文内容');
+                return;
+            }
+
+            // 禁用按钮并显示 loading
+            btn.disabled = true;
+            loading.style.display = 'flex';
+            
+            fetch('/api/evaluate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    question: sessionStorage.getItem('currentQuestion'),
+                    essay 
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showResult(`错误: ${data.error}`, true);
+                } else {
+                    showResult(`
+                        <h3>评分: ${data.score}/9</h3>
+                        <p><strong>总评:</strong> ${data.feedback}</p>
+                        <p><strong>语法错误:</strong></p>
+                        <ul>${data.errors.map(e => `<li>${e}</li>`).join('')}</ul>
+                    `);
+                }
+            })
+            .catch(error => showResult(`请求失败: ${error}`, true))
+            .finally(() => {
+                btn.disabled = false;
+                loading.style.display = 'none';
+            });
+        }
+
+        // 显示结果
+        function showResult(html, isError = false) {
+            const div = document.getElementById('resultArea');
+            div.innerHTML = html;
+            div.className = isError ? 'result-area error' : 'result-area success';
+        }
+
+        // 返回主界面
+        function goBack() {
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>

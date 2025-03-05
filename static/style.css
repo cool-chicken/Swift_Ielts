@@ -1,0 +1,125 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f0f2f5;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.button-group button {
+    margin: 5px;
+    padding: 10px 15px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.custom-url {
+    margin: 15px 0;
+}
+
+.custom-url input {
+    width: 300px;
+    padding: 8px;
+    margin-right: 10px;
+}
+
+.result-box {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.question-item {
+    margin: 10px 0;
+    padding: 10px;
+    background: #f8f9fa;
+    border-left: 4px solid #4CAF50;
+}
+
+.error {
+    color: #ff4444;
+    margin-top: 10px;
+}
+
+.loading {
+    color: #666;
+    font-style: italic;
+}
+/* 新增以下样式 */
+.question-content {
+    padding: 15px;
+    margin: 20px 0;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+textarea {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: vertical;
+}
+
+.submit-button {
+    background: #2196F3;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.result-area {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 4px;
+}
+
+.result-area.success {
+    background: #e8f5e9;
+    border-left: 4px solid #4CAF50;
+}
+
+.result-area.error {
+    background: #ffebee;
+    border-left: 4px solid #ff4444;
+}
+/* 如果希望输入框更大 */
+textarea {
+    font-size: 18px;  /* 进一步增大字体 */
+    padding: 15px;    /* 增加内边距 */
+}
+
+/* 输入框获得焦点时高亮 */
+textarea:focus {
+    border-color: #2196F3;
+    box-shadow: 0 0 5px rgba(33,150,243,0.3);
+    outline: none;
+}
+.back-button {
+    background: #666;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+.back-button:hover {
+    background: #555;
+}
