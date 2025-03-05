@@ -1,0 +1,4 @@
+# install some packages
+pip install pdfplumber pillow
+pip install requests
+pip install pandas openpyxl
