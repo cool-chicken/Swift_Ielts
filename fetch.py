@@ -54,7 +54,10 @@ def handle_crawl():
         return jsonify({'error': '爬取失败，请检查URL或稍后重试'})
 
 # 新增 Kimi API 配置（从环境变量获取密钥）
-KIMI_API_KEY = os.getenv('KIMI_API_KEY', 'sk-EEC4MsuJlItTmE8jrkwF3K9LWMSwjug7LnE7YY6ItMZwthcB')
+with open("api_key.txt", "r") as f:
+    KIMI_API_KEY = f.read().strip()
+KIMI_API_URL = "https://api.moonshot.cn/v1/chat/completions"
+
 KIMI_API_URL = "https://api.moonshot.cn/v1/chat/completions"
 
 @app.route('/answer')
