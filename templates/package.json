@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "http-server ./templates",
-    "build": "echo 'No build step required'",
-    "deploy": "gh-pages -d index.html"
+    "deploy": "gh-pages -d build"
   },
   "dependencies": {
     "gh-pages": "^4.0.0",

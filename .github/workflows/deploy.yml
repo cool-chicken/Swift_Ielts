@@ -23,6 +23,11 @@ jobs:
           cd templates
           npm install
 
+      - name: Build project
+          run: |
+            cd templates
+            npm run build
+            
       - name: Deploy to GitHub Pages
         run: |
           cd templates
