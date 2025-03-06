@@ -6,7 +6,7 @@
   "scripts": {
     "start": "http-server ./templates",
     "build": "echo 'No build step required'",
-    "deploy": "gh-pages -d templates"
+    "deploy": "gh-pages -d index.html"
   },
   "dependencies": {
     "gh-pages": "^4.0.0",

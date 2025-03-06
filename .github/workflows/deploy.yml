@@ -25,5 +25,4 @@ jobs:
 
       - name: Deploy to GitHub Pages
         run: |
-          cd templates
           npm run deploy
