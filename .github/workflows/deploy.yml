@@ -1,36 +1,27 @@
-name: Deploy
+name: Deploy GitHub Pages
 
 on:
   push:
     branches:
-      - main
+      - main  # 触发工作流的分支，根据实际情况修改
+
+  workflow_dispatch:  # 允许手动触发
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v3  # 使用 actions/checkout@v3 或更高版本
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.x'
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'  # 根据项目需要选择 Node.js 版本
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirement.txt
-
-    - name: Build project
-      run: python fetch.py
-
-    - name: Deploy to Server
-      env:
-        DEPLOY_SERVER: server
-        DEPLOY_USER: cool-chicken
-        DEPLOY_PATH: /path/to/deploy
-      run: |
-        scp -r ./templates/index.html $DEPLOY_USER@$DEPLOY_SERVER:$DEPLOY_PATH/templates/
-        ssh $DEPLOY_USER@$DEPLOY_SERVER "cd $DEPLOY_PATH && ./deploy.sh"
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./templates
