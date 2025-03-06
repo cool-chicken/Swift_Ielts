@@ -25,4 +25,6 @@ jobs:
 
       - name: Deploy to GitHub Pages
         run: |
+          cd templates
           npm run deploy
+        working-directory: ${{ /home/runner/work/Swift_Ielts }}/templates

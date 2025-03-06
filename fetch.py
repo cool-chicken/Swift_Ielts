@@ -1,11 +1,13 @@
 
 from flask import Flask, jsonify, request, render_template
+from flask_cors import CORS
 from bs4 import BeautifulSoup
 import requests
 import os
 import json
 
 app = Flask(__name__)
+CORS(app)
 
 # 预定义可爬取的 URL 列表（确保合法性和安全性）
 ALLOWED_URLS = {
