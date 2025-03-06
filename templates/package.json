@@ -1,25 +1,10 @@
 {
-  "name": "ielts-essay-evaluation-frontend",
+  "name": "my-template",
   "version": "1.0.0",
-  "description": "Frontend for IELTS essay evaluation app",
-  "main": "index.js",
   "scripts": {
-    "start": "http-server ./templates",
-    "build": "echo 'No build step required'",
-    "deploy": "gh-pages -d index.html"
+    "deploy": "gh-pages -d ."
   },
-  "dependencies": {
-    "gh-pages": "^4.0.0",
-    "http-server": "^14.1.1"
-  },
-  "devDependencies": {},
-  "keywords": [
-    "ielts",
-    "essay",
-    "evaluation",
-    "frontend"
-  ],
-  "author": "cool-chicken",
-  "license": "MIT",
-  "homepage": "https://github.com/cool-chicken/Swift_Ielts"
+  "devDependencies": {
+    "gh-pages": "^4.0.0"
+  }
 }

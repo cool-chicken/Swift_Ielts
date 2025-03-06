@@ -3,7 +3,7 @@ name: Deploy GitHub Pages
 on:
   push:
     branches:
-      - main
+      - main  # 触发工作流的分支，根据实际情况修改
 
 jobs:
   deploy:
@@ -16,7 +16,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: '16'  # 根据项目需要选择 Node.js 版本
 
       - name: Install dependencies
         run: |
@@ -27,4 +27,3 @@ jobs:
         run: |
           cd templates
           npm run deploy
-        working-directory: ${{ /home/runner/work/Swift_Ielts }}/templates
