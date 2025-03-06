@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "http-server ./templates",
-    "deploy": "gh-pages -d templates"
+    "deploy": "gh-pages -d ."
   },
   "dependencies": {
     "gh-pages": "^4.0.0",

@@ -20,7 +20,6 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd templates
           npm install
       - name: Deploy to GitHub Pages
         run: |
