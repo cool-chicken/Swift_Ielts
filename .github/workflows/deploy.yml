@@ -19,9 +19,7 @@ jobs:
           node-version: '16'  # 根据项目需要选择 Node.js 版本
 
       - name: Install dependencies
-        run: |
-          npm install
-      - name: Deploy to GitHub Pages
-        run: |
+        run: 
           cd templates
-          npm run deploy
+          npm install
+      
