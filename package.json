@@ -4,7 +4,7 @@
   "description": "Frontend for IELTS essay evaluation app",
   "main": "index.js",
   "scripts": {
-    "start": "http-server ./templates",
+    "start": "http-server ./",
     "deploy": "gh-pages -d ."
   },
   "dependencies": {

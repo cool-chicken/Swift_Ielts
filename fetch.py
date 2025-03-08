@@ -1,4 +1,3 @@
-
 from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS
 from bs4 import BeautifulSoup
@@ -6,7 +5,7 @@ import requests
 import os
 import json
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="static", template_folder=".")
 CORS(app)
 
 # 预定义可爬取的 URL 列表（确保合法性和安全性）
@@ -14,6 +13,12 @@ ALLOWED_URLS = {
     'ieltsliz_essays': "https://ieltsliz.com/100-ielts-essay-questions/communication-and-personality/",
     'ieltsliz_tips': 'https://ieltsliz.com/ielts-writing-task-2-essay-planning-tips/'
 }
+
+# 从环境变量中获取 Kimi API Key
+KIMI_API_KEY = os.getenv("KIMI_API_KEY")
+if not KIMI_API_KEY:
+    raise ValueError("请设置 KIMI_API_KEY 环境变量")
+KIMI_API_URL = "https://api.moonshot.com/v1/chat/completions"
 
 def crawl_questions(url):
     try:
@@ -30,6 +35,28 @@ def crawl_questions(url):
         return questions
     except Exception as e:
         return None
+
+def call_kimi_api(prompt):
+    try:
+        headers = {
+            "Authorization": f"Bearer {KIMI_API_KEY}",
+            "Content-Type": "application/json"
+        }
+        response = requests.post(
+            KIMI_API_URL,
+            headers=headers,
+            json={
+                "model": "moonshot-v1-8k",
+                "messages": [{"role": "user", "content": prompt}],
+                "temperature": 0.3
+            },
+            timeout=30,
+            verify=False
+        )
+        response.raise_for_status()
+        return response.json()
+    except Exception as e:
+        raise Exception(f"API调用失败: {str(e)}")
 
 @app.route('/')
 def home():
@@ -55,13 +82,6 @@ def handle_crawl():
     else:
         return jsonify({'error': '爬取失败，请检查URL或稍后重试'})
 
-# 新增 Kimi API 配置（从环境变量获取密钥）
-with open("api_key.txt", "r") as f:
-    KIMI_API_KEY = f.read().strip()
-KIMI_API_URL = "https://api.moonshot.cn/v1/chat/completions"
-
-KIMI_API_URL = "https://api.moonshot.cn/v1/chat/completions"
-
 @app.route('/answer')
 def answer():
     return render_template('answer.html')
@@ -75,70 +95,51 @@ def evaluate_essay():
     if not all([question, essay]):
         return jsonify({'error': '缺少题目或作文内容'})
     
-    # 调用 Kimi API
+    # 构建评分提示词
+    prompt = f"""
+    请根据雅思写作评分标准对以下作文进行批改：
+    - 作文题目：{question}
+    - 学生作文：{essay}
+    
+    要求返回JSON格式：
+    {{
+        "score": 分数（0-9）,
+        "feedback": "详细批改建议",
+        "errors": ["语法错误1", "语法错误2", ...],
+        "suggestions": ["哪些句子逻辑不清晰", "用词不当","高级替换","词汇替换" ...],
+        "reference1": "参考范文1",
+        “reference2”: "参考范文2"
+    }}
+    """
+    
     try:
-        headers = {
-            "Authorization": f"Bearer {KIMI_API_KEY}",
-            "Content-Type": "application/json"
-        }
-        
-        # 构建评分提示词（根据需求调整）
-        prompt = f"""
-        请根据雅思写作评分标准对以下作文进行批改：
-        - 题目：{question}
-        - 作文：{essay}
-        
-        要求返回JSON格式：
-        {{
-            "score": 分数（0-9）,
-            "feedback": "详细批改建议",
-            "errors": ["语法错误1", "语法错误2"]
-            "examples": "本题范文"
-        }}
-        """
-        
-        response = requests.post(
-            KIMI_API_URL,
-            headers=headers,
-            json={
-                "model": "moonshot-v1-8k",
-                "messages": [{"role": "user", "content": prompt}],
-                "temperature": 0.3
-            },
-            timeout=30
-        )
-        response.raise_for_status()
-        
-        # 解析 Kimi 的回复（需根据实际响应结构调整）
-        result = response.json()
+        # 调用 Kimi API
+        result = call_kimi_api(prompt)
         feedback_content = result['choices'][0]['message']['content']
         
-        # 这里假设 API 返回纯文本，实际需解析为结构化数据
-        # 以下为模拟数据示例
-        # 这里假设 API 返回纯文本，实际需解析为结构化数据
-        # 以下为模拟数据示例
+        # 解析 Kimi 的回复
         feedback_json = json.loads(feedback_content)
         score = feedback_json.get('score')
         feedback = feedback_json.get('feedback')
         errors = feedback_json.get('errors', [])
+        suggestions = feedback_json.get('suggestions', [])
+        reference1 = feedback_json.get('reference1', '')
+        reference2 = feedback_json.get('reference2', '')
         
         return jsonify({
             "score": score,
             "feedback": feedback,
-            "errors": errors
+            "errors": errors,
+            "suggestions": suggestions,
+            "reference1": reference1,
+            "reference2": reference2
         })
-        
     except json.JSONDecodeError:
         return jsonify({'error': 'Kimi 返回的数据格式无效'})
     except KeyError as e:
         return jsonify({'error': f'解析 Kimi 响应失败: 缺少字段 {str(e)}'})
     except Exception as e:
         return jsonify({'error': f'API调用失败: {str(e)}'})
-        
-    except Exception as e:
-        return jsonify({'error': f'API调用失败: {str(e)}'})
-    
-
 
 if __name__ == '__main__':
     app.run(debug=True)

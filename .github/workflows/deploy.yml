@@ -3,7 +3,9 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main # 或者你使用的分支名称，比如 "master"
+      - main  # 触发工作流的分支，根据实际情况修改
+
+  workflow_dispatch:  # 允许手动触发
 
 jobs:
   deploy:
@@ -20,15 +22,10 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        working-directory: ./Swift_Ielts
-
-      - name: Build project
-        run: npm run build
-        working-directory: ./Swift_Ielts
+        working-directory: ./Swift_Ielts  # 这里是你的 package.json 文件所在的目录
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./Swift_Ielts/templates # 这里是你的 index.html 文件所在的目录
-          publish_branch: gh-pages # 部署到 gh-pages 分支
+          publish_dir: ./Swift_Ielts  # 指定要发布的目录为项目根目录

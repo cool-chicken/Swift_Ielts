@@ -74,17 +74,20 @@ textarea {
 }
 
 .submit-button {
+    margin: 10px 0;
+    padding-top: 20px;
     background: #2196F3;
     color: white;
     padding: 12px 24px;
     border: none;
-    border-radius: 4px;
+    border-radius: 10px;
     cursor: pointer;
     font-size: 16px;
+    float: right;
 }
 
 .result-area {
-    margin-top: 20px;
+    margin-top: 65px;
     padding: 15px;
     border-radius: 4px;
 }
@@ -102,6 +105,13 @@ textarea {
 textarea {
     font-size: 18px;  /* 进一步增大字体 */
     padding: 15px;    /* 增加内边距 */
+    min-height: 200px;  /* 设置最小高度 */
+    resize: vertical;  /* 设置垂直方向可拉伸 */
+    width: 100%;       /* 设置宽度为 100% */
+    border: 2px solid #a5b29d;  /* 设置边框 */
+    border-radius: 10px;     /* 设置圆角 */
+    box-sizing: border-box;  /* 设置盒模型 */
+    margin: 5px 0px;         /* 设置外边距 */
 }
 
 /* 输入框获得焦点时高亮 */
@@ -111,7 +121,7 @@ textarea:focus {
     outline: none;
 }
 .back-button {
-    background: #666;
+    background: #f77336;
     color: white;
     padding: 8px 16px;
     border: none;
@@ -121,5 +131,5 @@ textarea:focus {
 }
 
 .back-button:hover {
-    background: #555;
+    background:#fa8e5c;
 }

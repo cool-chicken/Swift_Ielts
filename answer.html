@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>作文批改</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <div class="container">
@@ -14,6 +14,7 @@
         <textarea 
             id="essayInput" 
             rows="15"
+            cols="40"
             placeholder="在此输入您的作文（仅支持英文）..."
             inputmode="latin"
             lang="en"
@@ -73,6 +74,9 @@
                         <p><strong>总评:</strong> ${data.feedback}</p>
                         <p><strong>语法错误:</strong></p>
                         <ul>${data.errors.map(e => `<li>${e}</li>`).join('')}</ul>
+                        <p><strong>建议:</strong> ${data.suggestions.join(', ')}</p>
+                        <p><strong>参考范文1:</strong> ${data.reference1}</p>
+                        <p><strong>参考范文2:</strong> ${data.reference2}</p>
                     `);
                 }
             })
