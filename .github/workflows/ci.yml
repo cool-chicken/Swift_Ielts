@@ -22,4 +22,4 @@ jobs:
       - name: Run script
         env:
           KIMI_API_KEY: ${{ secrets.KIMI_API_KEY }}
-        run: python your_script.py
+        run: python fetch.py
