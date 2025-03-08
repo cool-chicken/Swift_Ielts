@@ -16,16 +16,16 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2  # 设置 Python 环境
         with:
-          python-version: '3.12'
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install flask flask-cors beautifulsoup4 requests flask-freeze
+          pip install flask flask-cors beautifulsoup4 requests Frozen-Flask
 
       - name: Generate static files
         run: |
-          python app.py  # 生成静态文件
+          python fetch.py  # 生成静态文件
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3  # 使用 gh-pages 部署
