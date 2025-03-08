@@ -4,9 +4,11 @@ from bs4 import BeautifulSoup
 import requests
 import os
 import json
+from flask_frozen import Freezer 
 
 app = Flask(__name__, static_folder="static", template_folder=".")
 CORS(app)
+freezer = Freezer(app)
 
 # 预定义可爬取的 URL 列表（确保合法性和安全性）
 ALLOWED_URLS = {
@@ -142,4 +144,4 @@ def evaluate_essay():
         return jsonify({'error': f'API调用失败: {str(e)}'})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    freezer.freeze()
