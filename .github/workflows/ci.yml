@@ -9,17 +9,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python
+      - name: Set up Python 3.12.7
         uses: actions/setup-python@v4
         with:
-          python-version: "3.9"
+          python-version: "3.12.7"  # 指定 Python 版本
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r requirements.txt  # 安装 requirements.txt 中的依赖项
 
-      - name: Run script
+      - name: Run fetch.py
         env:
-          KIMI_API_KEY: ${{ secrets.KIMI_API_KEY }}
-        run: python fetch.py
+          KIMI_API_KEY: ${{ secrets.KIMI_API_KEY }}  # 使用 GitHub Secrets 中的 API Key
+        run: python fetch.py  # 运行 fetch.py
