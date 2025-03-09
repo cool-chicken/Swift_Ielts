@@ -12,9 +12,16 @@ CORS(app)
 
 # 预定义可爬取的 URL 列表（确保合法性和安全性）
 ALLOWED_URLS = {
-    'ieltsliz_essays': "https://ieltsliz.com/100-ielts-essay-questions/communication-and-personality/",
-    'ieltsliz_tips': 'https://ieltsliz.com/ielts-writing-task-2-essay-planning-tips/'
-}
+    'ieltsliz_communication-and-personality': "https://ieltsliz.com/100-ielts-essay-questions/communication-and-personality/",
+    'ieltsliz_business-and-money': 'https://ieltsliz.com/100-ielts-essay-questions/business-and-money/',
+    'ieltsliz_crime-and-punishment': 'https://ieltsliz.com/100-ielts-essay-questions/crime-and-punishment/',
+    'ieltsliz_environment': 'https://ieltsliz.com/100-ielts-essay-questions/environment',
+    'ieltsliz_education': 'https://ieltsliz.com/100-ielts-essay-questions/education/',
+    'ieltsliz_health': 'https://ieltsliz.com/100-ielts-essay-questions/health/',
+    'ieltsliz_technology': 'https://ieltsliz.com/100-ielts-essay-questions/technology/',
+    'ieltsliz_society': 'https://ieltsliz.com/100-ielts-essay-questions/society/',
+    'ieltsliz_transport': 'https://ieltsliz.com/100-ielts-essay-questions/transport/',
+    'ieltsliz_work': 'https://ieltsliz.com/100-ielts-essay-questions/work/'}
 
 # 从环境变量中获取 Kimi API Key
 KIMI_API_KEY = os.getenv("KIMI_API_KEY")
@@ -26,16 +33,25 @@ def crawl_questions(url):
         response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
         soup = BeautifulSoup(response.text, 'html.parser')
         content_div = soup.find('div', class_='entry-content')
-        paragraphs = content_div.find_all('p') if content_div else []
+        blockquotes = content_div.find_all('blockquote') if content_div else []
         
         questions = []
-        for p in paragraphs:
-            text = p.get_text().strip()
-            if text and (text[0].isdigit() or text.startswith(('Discuss', 'Some'))):
-                questions.append(text)
+        for blockquote in blockquotes:
+            paragraphs = blockquote.find_all('p')
+            text_parts = []
+            for p in paragraphs:
+                text = p.get_text()
+                if text:
+                    text_parts.append(text)
+            # 将段落用换行符连接起来
+            full_text = '\n'.join(text_parts)
+            if full_text:
+                questions.append(full_text)
         return questions
     except Exception as e:
+        print(f"An error occurred: {e}")
         return None
+
 
 def call_kimi_api(prompt):
     try:
