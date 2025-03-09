@@ -47,15 +47,16 @@ Swift_Ielts 是一个基于 Flask 框架的 Web 应用程序，旨在帮助雅�
     export KIMI_API_KEY="your_actual_api_key_here"
     ```
     申请步骤：
-    1. 访问 [Moonshot API Keys](https://platform.moonshot.cn/console/api-keys)
-    2. 获取 API Key
+    1. 访问 <a href="https://platform.moonshot.cn/console/api-keys" style="color:blue;">Moonshot API Keys</a>
+    2. 新建 API Key
+    3. 将 API Key 复制到 your_actual_api_key_here处
 
 5. 运行应用程序：
     ```sh
     python fetch.py
     ```
 
-6. 在浏览器中打开 `http://127.0.0.1:5000` 访问应用程序。
+6. 在浏览器中打开 <a href="http://127.0.0.1:5000" style="color:green;">http://127.0.0.1:5000</a> 访问应用程序。
 
 ## 使用说明 📖
 
@@ -65,16 +66,20 @@ Swift_Ielts 是一个基于 Flask 框架的 Web 应用程序，旨在帮助雅�
 4. 点击“更多范文”按钮，可以获取更多的参考范文。
 
 ## 文件结构 🗂️
+
 ```
-Swift_Ielts/ 
-│ 
-├── static/ 
-│ ├── styles.css # 样式文件 
-├── index.html # 主页面
-├── answer.html # 作文批改页面 
-├── fetch.py # 主应用程序文件 
-├── requirements.txt # 依赖包列表 
-├── README.md # 项目说明文件
+Swift_Ielts/
+│
+├── static/
+│   ├── styles.css          # 样式文件
+│
+├── templates/
+│   ├── index.html          # 主页面
+│   ├── answer.html         # 作文批改页面
+│
+├── fetch.py                # 主应用程序文件
+├── requirements.txt        # 依赖包列表
+├── README.md               # 项目说明文件
 ```
 
 ## 贡献指南 🤝
