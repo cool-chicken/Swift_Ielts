@@ -4,11 +4,11 @@ from bs4 import BeautifulSoup
 import requests
 import os
 import json
-from flask_frozen import Freezer 
+from openai import OpenAI
+import re
 
 app = Flask(__name__, static_folder="static", template_folder=".")
 CORS(app)
-freezer = Freezer(app)
 
 # 预定义可爬取的 URL 列表（确保合法性和安全性）
 ALLOWED_URLS = {
@@ -20,7 +20,6 @@ ALLOWED_URLS = {
 KIMI_API_KEY = os.getenv("KIMI_API_KEY")
 if not KIMI_API_KEY:
     raise ValueError("请设置 KIMI_API_KEY 环境变量")
-KIMI_API_URL = "https://api.moonshot.com/v1/chat/completions"
 
 def crawl_questions(url):
     try:
@@ -40,23 +39,16 @@ def crawl_questions(url):
 
 def call_kimi_api(prompt):
     try:
-        headers = {
-            "Authorization": f"Bearer {KIMI_API_KEY}",
-            "Content-Type": "application/json"
-        }
-        response = requests.post(
-            KIMI_API_URL,
-            headers=headers,
-            json={
-                "model": "moonshot-v1-8k",
-                "messages": [{"role": "user", "content": prompt}],
-                "temperature": 0.3
-            },
-            timeout=30,
-            verify=False
+        client = OpenAI(
+            api_key = KIMI_API_KEY,
+            base_url="https://api.moonshot.cn/v1",
         )
-        response.raise_for_status()
-        return response.json()
+        response = client.chat.completions.create(
+            model="moonshot-v1-128k",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.2
+        )
+        return response
     except Exception as e:
         raise Exception(f"API调用失败: {str(e)}")
 
@@ -82,7 +74,7 @@ def handle_crawl():
     if questions is not None:
         return jsonify({'questions': questions})
     else:
-        return jsonify({'error': '爬取失败，请检查URL或稍后重试'})
+        return jsonify({'error': '爬取失败,请检查URL或稍后重试'})
 
 @app.route('/answer')
 def answer():
@@ -99,49 +91,100 @@ def evaluate_essay():
     
     # 构建评分提示词
     prompt = f"""
-    请根据雅思写作评分标准对以下作文进行批改：
+    请根据雅思写作评分标准对以下作文进行严谨批改（至少250词）：
     - 作文题目：{question}
     - 学生作文：{essay}
     
     要求返回JSON格式：
     {{
         "score": 分数（0-9）,
-        "feedback": "详细批改建议",
+        "feedback": "从写作任务回应情况、连贯与衔接、词汇丰富程度、语法准确性、句子结构多样性等方面给出评价",
         "errors": ["语法错误1", "语法错误2", ...],
         "suggestions": ["哪些句子逻辑不清晰", "用词不当","高级替换","词汇替换" ...],
-        "reference1": "参考范文1",
-        “reference2”: "参考范文2"
+        "reference": "参考范文"
     }}
     """
     
     try:
         # 调用 Kimi API
         result = call_kimi_api(prompt)
-        feedback_content = result['choices'][0]['message']['content']
-        
+        feedback_content = result.choices[0].message.content
+        feedback_content = feedback_content.replace('\n', ' ')
+        feedback_content = feedback_content.strip()
+        feedback_content = re.sub(r'\s+', ' ', feedback_content)
+        print("Kimi API Response:")
+        print(feedback_content)
         # 解析 Kimi 的回复
         feedback_json = json.loads(feedback_content)
+        print("Kimi API Response (JSON):")
+        print(feedback_json)
         score = feedback_json.get('score')
         feedback = feedback_json.get('feedback')
         errors = feedback_json.get('errors', [])
         suggestions = feedback_json.get('suggestions', [])
-        reference1 = feedback_json.get('reference1', '')
-        reference2 = feedback_json.get('reference2', '')
+        reference = feedback_json.get('reference', '')
         
         return jsonify({
             "score": score,
             "feedback": feedback,
             "errors": errors,
             "suggestions": suggestions,
-            "reference1": reference1,
+            "reference": reference
+        })
+
+    except json.JSONDecodeError:
+        return jsonify({'error': 'Kimi 返回的数据格式无效'})
+    except KeyError as e:
+        return jsonify({'error': f'解析 Kimi 响应失败: 缺少字段 {str(e)}'})
+    except Exception as e:
+        print(feedback_content)
+        return jsonify({'error': f'API调用失败: {str(e)}'})
+
+@app.route('/api/more_references', methods=['POST'])
+def get_more_references():
+    data = request.json
+    question = data.get('question')
+    
+    if not question:
+        return jsonify({'error': '缺少题目'})
+    
+    # 构建获取更多范文的提示词
+    prompt2 = f"""
+    请根据以下雅思作文题目生成一篇新的范文（至少250词）：
+    - 作文题目：{question}
+    
+    要求返回严格的JSON格式:
+    {{
+        'reference2': '参考范文'
+    }}
+    """
+    
+    try:
+        # 调用 Kimi API
+        result2 = call_kimi_api(prompt2)
+        feedback_content2 = result2.choices[0].message.content
+        print("Kimi API Response2:")
+        print(type(feedback_content2))
+        # 解析 Kimi 的回复
+        feedback_content2 = feedback_content2.strip()
+        feedback_content2 = re.sub(r'\s+', ' ', feedback_content2)
+        feedback_json2 = json.loads(feedback_content2)
+        print("Kimi API Response2 (JSON):")
+        print(type(feedback_json2))
+        reference2 = feedback_json2.get('reference2', '')
+        print("reference2:")
+        print(reference2)
+        
+        return jsonify({
             "reference2": reference2
         })
+
     except json.JSONDecodeError:
         return jsonify({'error': 'Kimi 返回的数据格式无效'})
     except KeyError as e:
         return jsonify({'error': f'解析 Kimi 响应失败: 缺少字段 {str(e)}'})
     except Exception as e:
         return jsonify({'error': f'API调用失败: {str(e)}'})
-
+    
 if __name__ == '__main__':
-    freezer.freeze()
+    app.run(debug=True)

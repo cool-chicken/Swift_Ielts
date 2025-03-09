@@ -22,11 +22,31 @@
         
         <button onclick="submitEssay()" class="submit-button" id="submitBtn">提交批改</button>
         <div id="loading" class="loading" style="display: none;">
-            <div class="spinner"></div>
-            批改中，请稍候...
+            <!-- SVG 动画 -->
+            <svg class="scalableBox" viewBox="0 0 128 256" width="40px" height="70px" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="ap-grad1" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="hsl(223,90%,55%)" />
+                        <stop offset="100%" stop-color="hsl(253,90%,55%)" />
+                    </linearGradient>
+                    <linearGradient id="ap-grad2" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="hsl(193,90%,55%)" />
+                        <stop offset="50%" stop-color="hsl(223,90%,55%)" />
+                        <stop offset="100%" stop-color="hsl(253,90%,55%)" />
+                    </linearGradient>
+                </defs>
+                <circle class="apringBox" r="56" cx="64" cy="192" fill="none" stroke="#ddd" stroke-width="16" stroke-linecap="round" />
+                <circle class="apwormOneBox" r="56" cx="64" cy="192" fill="none" stroke="url(#ap-grad1)" stroke-width="16" stroke-linecap="round"
+                    stroke-dasharray="87.96 263.89" />
+                <path class="apwormTwoBox" d="M120,192A56,56,0,0,1,8,192C8,161.07,16,8,64,8S120,161.07,120,192Z" fill="none" stroke="url(#ap-grad2)"
+                    stroke-width="16" stroke-linecap="round" stroke-dasharray="87.96 494" />
+            </svg>
+            <!-- 加载文本 -->
+            <div class="loading-text">批改中，请稍候...</div>
         </div>
         
         <div id="resultArea" class="result-area"></div>
+        <div id="moreReferencesArea" class="more-references-area"></div>
     </div>
 
     <script>
@@ -75,8 +95,8 @@
                         <p><strong>语法错误:</strong></p>
                         <ul>${data.errors.map(e => `<li>${e}</li>`).join('')}</ul>
                         <p><strong>建议:</strong> ${data.suggestions.join(', ')}</p>
-                        <p><strong>参考范文1:</strong> ${data.reference1}</p>
-                        <p><strong>参考范文2:</strong> ${data.reference2}</p>
+                        <p><strong>参考范文:</strong> ${data.reference}</p>
+                        <button id="moreReferencesBtn" onclick="fetchMoreReferences('${sessionStorage.getItem('currentQuestion')}')">更多范文</button>
                     `);
                 }
             })
@@ -92,6 +112,39 @@
             const div = document.getElementById('resultArea');
             div.innerHTML = html;
             div.className = isError ? 'result-area error' : 'result-area success';
+        }
+
+        // 获取更多范文
+        function fetchMoreReferences(question) {
+            const moreReferencesBtn = document.getElementById('moreReferencesBtn');
+            const moreReferencesArea = document.getElementById('moreReferencesArea');
+
+            // 禁用按钮并显示加载状态
+            moreReferencesBtn.disabled = true;
+            moreReferencesBtn.textContent = '加载中...';
+
+            fetch('/api/more_references', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    moreReferencesArea.innerHTML = `<p class="error">${data.error}</p>`;
+                } else {
+                    // 显示新的范文
+                    moreReferencesArea.innerHTML += `<p><strong>新范文：</strong> ${data.reference2}</p>`;
+                }
+            })
+            .catch(error => {
+                moreReferencesArea.innerHTML = `<p class="error">请求失败: ${error}</p>`;
+            })
+            .finally(() => {
+                // 恢复按钮状态
+                moreReferencesBtn.disabled = false;
+                moreReferencesBtn.textContent = '更多范文';
+            });
         }
 
         // 返回主界面

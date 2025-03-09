@@ -53,8 +53,92 @@ body {
 }
 
 .loading {
-    color: #666;
-    font-style: italic;
+    display: flex;
+    align-items: center; /* 垂直居中 */
+    justify-content: center; /* 水平居中 */
+    gap: 20px; /* 动画和文本之间的间距 */
+    padding: 10px;
+    background: rgba(0, 0, 0, 0); /* 背景颜色 */
+    border-radius: 8px; /* 圆角 */
+    color: rgb(12, 12, 12); /* 文本颜色 */
+    font-size: 16px; /* 文本大小 */
+}
+
+.scalableBox {
+    width: 40px;
+    height: 70px;
+}
+
+.apringBox {
+    transition: stroke 0.3s;
+}
+
+.apwormOneBox,
+.apwormTwoBox {
+    animation-duration: 3s;
+    animation-iteration-count: infinite;
+}
+
+.apwormTwoBox {
+    animation-name: worm2;
+    visibility: hidden;
+}
+
+.apwormOneBox {
+    animation-name: worm1;
+}
+
+.loading-text {
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+}
+
+@keyframes worm1 {
+    from {
+        animation-timing-function: ease-in-out;
+        stroke-dashoffset: -87.96;
+    }
+
+    20% {
+        animation-timing-function: ease-in;
+        stroke-dashoffset: 0;
+    }
+
+    60% {
+        stroke-dashoffset: -791.68;
+        visibility: visible;
+    }
+
+    60.1%,
+    to {
+        stroke-dashoffset: -791.68;
+        visibility: hidden;
+    }
+}
+
+@keyframes worm2 {
+    from,
+    60% {
+        stroke-dashoffset: -87.96;
+        visibility: hidden;
+    }
+
+    60.1% {
+        animation-timing-function: cubic-bezier(0, 0, 0.5, 0.75);
+        stroke-dashoffset: -87.96;
+        visibility: visible;
+    }
+
+    77% {
+        animation-timing-function: cubic-bezier(0.5, 0.25, 0.5, 0.88);
+        stroke-dashoffset: -340;
+        visibility: visible;
+    }
+
+    to {
+        stroke-dashoffset: -669.92;
+        visibility: visible;
+    }
 }
 /* 新增以下样式 */
 .question-content {
