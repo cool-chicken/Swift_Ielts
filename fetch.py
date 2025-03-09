@@ -109,7 +109,6 @@ def evaluate_essay():
         # 调用 Kimi API
         result = call_kimi_api(prompt)
         feedback_content = result.choices[0].message.content
-        feedback_content = feedback_content.replace('\n', ' ')
         feedback_content = feedback_content.strip()
         feedback_content = re.sub(r'\s+', ' ', feedback_content)
         print("Kimi API Response:")

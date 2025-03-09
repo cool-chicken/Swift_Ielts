@@ -131,14 +131,26 @@
             .then(response => response.json())
             .then(data => {
                 if (data.error) {
-                    moreReferencesArea.innerHTML = `<p class="error">${data.error}</p>`;
+                    moreReferencesArea.innerHTML = `
+                    <div class="result-area error">
+                        <p>${data.error}</p>
+                    </div>
+                    `;
                 } else {
                     // 显示新的范文
-                    moreReferencesArea.innerHTML += `<p><strong>新范文：</strong> ${data.reference2}</p>`;
+                    moreReferencesArea.innerHTML += `
+                    <div class="result-area success">
+                        <h3>参考范文</h3>
+                        <p>${data.reference2}</p>
+                    </div>
+                    `;
                 }
             })
             .catch(error => {
-                moreReferencesArea.innerHTML = `<p class="error">请求失败: ${error}</p>`;
+                moreReferencesArea.innerHTML = `
+                <div class="result-area error">
+                    <p>请求失败: ${error}</p>
+                    </div> `;
             })
             .finally(() => {
                 // 恢复按钮状态
