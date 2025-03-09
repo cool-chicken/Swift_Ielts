@@ -205,7 +205,7 @@ textarea:focus {
     outline: none;
 }
 .back-button {
-    background: #f77336;
+    background: #650404b2;
     color: white;
     padding: 8px 16px;
     border: none;
@@ -217,3 +217,26 @@ textarea:focus {
 .back-button:hover {
     background:#fa8e5c;
 }
+
+.more-references-button {
+    padding-top: 10px;
+    background-color: #f9e4e4;
+    color: rgb(136, 85, 65); 
+    border: none; 
+    padding: 10px 20px; /* 内边距 */
+    text-align: center; /* 文字居中 */
+    text-decoration: none; /* 无下划线 */
+    display: inline-block; /* 内联块元素 */
+    font-size: 16px; /* 字体大小 */
+    margin: 10px 2px; /* 外边距 */
+    cursor: pointer; /* 鼠标指针 */
+    border-radius: 4px; /* 圆角 */
+    transition-duration: 0.05s; /* 过渡时间 */
+}
+
+.more-references-button:hover {
+    background-color: rgb(245, 195, 195); /* 悬停时背景变为白色 */
+    color:  #0f0b44ba; /* 悬停时文字变为黑色 */
+}
+
+/* 其他样式... */

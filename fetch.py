@@ -7,7 +7,7 @@ import json
 from openai import OpenAI
 import re
 
-app = Flask(__name__, static_folder="static", template_folder=".")
+app = Flask(__name__, static_folder="static", template_folder="templates")
 CORS(app)
 
 # 预定义可爬取的 URL 列表（确保合法性和安全性）
@@ -22,11 +22,6 @@ ALLOWED_URLS = {
     'ieltsliz_society': 'https://ieltsliz.com/100-ielts-essay-questions/society/',
     'ieltsliz_transport': 'https://ieltsliz.com/100-ielts-essay-questions/transport/',
     'ieltsliz_work': 'https://ieltsliz.com/100-ielts-essay-questions/work/'}
-
-# 从环境变量中获取 Kimi API Key
-KIMI_API_KEY = os.getenv("KIMI_API_KEY")
-if not KIMI_API_KEY:
-    raise ValueError("请设置 KIMI_API_KEY 环境变量")
 
 def crawl_questions(url):
     try:
@@ -62,7 +57,7 @@ def call_kimi_api(prompt):
         response = client.chat.completions.create(
             model="moonshot-v1-128k",
             messages=[{"role": "user", "content": prompt}],
-            temperature=0.2
+            temperature=0.4
         )
         return response
     except Exception as e:
@@ -107,7 +102,7 @@ def evaluate_essay():
     
     # 构建评分提示词
     prompt = f"""
-    请根据雅思写作评分标准对以下作文进行严谨批改（至少250词）：
+    请根据英语雅思写作评分标准对以下作文进行严谨批改（至少250词）：
     - 作文题目：{question}
     - 学生作文：{essay}
     
@@ -117,7 +112,7 @@ def evaluate_essay():
         "feedback": "从写作任务回应情况、连贯与衔接、词汇丰富程度、语法准确性、句子结构多样性等方面给出评价",
         "errors": ["语法错误1", "语法错误2", ...],
         "suggestions": ["哪些句子逻辑不清晰", "用词不当","高级替换","词汇替换" ...],
-        "reference": "参考范文"
+        "reference": "本题参考范文"
     }}
     """
     
@@ -157,6 +152,7 @@ def evaluate_essay():
 
 @app.route('/api/more_references', methods=['POST'])
 def get_more_references():
+    print("get_more_references")
     data = request.json
     question = data.get('question')
     
@@ -165,12 +161,12 @@ def get_more_references():
     
     # 构建获取更多范文的提示词
     prompt2 = f"""
-    请根据以下雅思作文题目生成一篇新的范文（至少250词）：
+    请根据以下雅思作文题目生成一篇新的英文范文（至少250词）：
     - 作文题目：{question}
     
     要求返回严格的JSON格式:
     {{
-        'reference2': '参考范文'
+        'reference2': '本题参考范文'
     }}
     """
     
@@ -202,4 +198,11 @@ def get_more_references():
         return jsonify({'error': f'API调用失败: {str(e)}'})
     
 if __name__ == '__main__':
+    # 从环境变量中获取 Kimi API Key
+    KIMI_API_KEY = os.getenv("KIMI_API_KEY")
+    if not KIMI_API_KEY:
+        KIMI_API_KEY = input("请输入 Kimi API Key: ")
+    if not KIMI_API_KEY:
+        raise ValueError("未提供 Kimi API Key")
+
     app.run(debug=True)

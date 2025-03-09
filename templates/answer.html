@@ -3,9 +3,36 @@
 <head>
     <title>作文批改</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        .blur-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .timer-container {
+            text-align: center;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
+    <div class="blur-overlay" id="blurOverlay">
+        <div class="timer-container">
+            <div id="timer">倒计时: 3:00</div>
+            <button onclick="startTimer()">开始计时</button>
+        </div>
+    </div>
+
+    <div class="container hidden" id="mainContent">
         <button onclick="goBack()" class="back-button">返回题目列表</button>
         <h2>题目</h2>
         <div id="questionContent" class="question-content"></div>
@@ -46,6 +73,7 @@
         </div>
         
         <div id="resultArea" class="result-area"></div>
+        <button id="moreReferencesBtn" class="more-references-button" onclick="fetchMoreReferences(sessionStorage.getItem('currentQuestion'))">查看更多范文</button>
         <div id="moreReferencesArea" class="more-references-area"></div>
     </div>
 
@@ -60,6 +88,28 @@
         document.getElementById('essayInput').addEventListener('input', function (e) {
             this.value = this.value.replace(/[^a-zA-Z0-9\s\.,;!?']/g, '');
         });
+
+                // 计时器功能
+                let timerInterval;
+        let timeLeft = 180; // 3 minutes in seconds
+        function startTimer() {
+            document.getElementById('blurOverlay').style.display = 'none';
+            document.getElementById('mainContent').classList.remove('hidden');
+            document.getElementById('moreReferencesBtn').disabled = true;
+
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    alert('时间到！请提交您的作文。');
+                    document.getElementById('submitBtn').disabled = true;
+                } else {
+                    timeLeft--;
+                    const minutes = Math.floor(timeLeft / 60);
+                    const seconds = timeLeft % 60;
+                    document.getElementById('timer').textContent = `倒计时: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                }
+            }, 1000);
+        }
 
         // 提交逻辑
         function submitEssay() {
@@ -96,7 +146,6 @@
                         <ul>${data.errors.map(e => `<li>${e}</li>`).join('')}</ul>
                         <p><strong>建议:</strong> ${data.suggestions.join(', ')}</p>
                         <p><strong>参考范文:</strong> ${data.reference}</p>
-                        <button id="moreReferencesBtn" onclick="fetchMoreReferences('${sessionStorage.getItem('currentQuestion')}')">更多范文</button>
                     `);
                 }
             })
@@ -104,6 +153,7 @@
             .finally(() => {
                 btn.disabled = false;
                 loading.style.display = 'none';
+                document.getElementById('moreReferencesBtn').disabled = false;
             });
         }
 
@@ -116,6 +166,7 @@
 
         // 获取更多范文
         function fetchMoreReferences(question) {
+            console.log("点击了更多范文按钮，题目：", question); // 调试日志
             const moreReferencesBtn = document.getElementById('moreReferencesBtn');
             const moreReferencesArea = document.getElementById('moreReferencesArea');
 
