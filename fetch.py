@@ -199,9 +199,7 @@ def get_more_references():
     
 if __name__ == '__main__':
     # 从环境变量中获取 Kimi API Key
-    KIMI_API_KEY = os.getenv("KIMI_API_KEY")
-    if not KIMI_API_KEY:
-        KIMI_API_KEY = input("请输入 Kimi API Key: ")
+    KIMI_API_KEY = os.environ.get("KIMI_API_KEY")
     if not KIMI_API_KEY:
         raise ValueError("未提供 Kimi API Key")
 

@@ -1,0 +1,53 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches:
+      - main  # 仅在推送到 main 分支时触发
+  workflow_dispatch:  # 手动触发工作流
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run tests
+      run: |
+        python fetch.py
+
+    - name: Deploy to Server
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        SERVER_HOST: ${{ secrets.SERVER_HOST }}
+        SERVER_USER: ${{ secrets.SERVER_USER }}
+        DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+      run: |
+        # 配置 SSH
+        mkdir -p ~/.ssh
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+
+        # 将代码上传到服务器
+        rsync -avz --exclude='.git' ./ $SERVER_USER@$SERVER_HOST:$DEPLOY_PATH
+
+        # 在服务器上重启服务
+        ssh $SERVER_USER@$SERVER_HOST << EOF
+          cd $DEPLOY_PATH
+          source venv/bin/activate
+          pip install -r requirements.txt
+          # 停止并重启服务（根据您的服务管理工具调整）
+          sudo systemctl restart my-flask-app.service
+        EOF
